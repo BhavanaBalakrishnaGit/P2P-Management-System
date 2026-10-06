@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Vendor Detail{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Vendor Detail</h5>
+        <small class="text-muted">Full profile — {{ vendor.vendor_name }}</small>
+    </div>
+    <div>
+        <a href="/vendors/{{ vendor.id }}/edit"
+           class="btn btn-warning me-2">
+            <i class="fas fa-edit me-1"></i> Edit Vendor
+        </a>
+        <a href="/vendors" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Vendors
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- ── LEFT — Vendor Info Card ─────────── -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header py-3">
+                <i class="fas fa-building me-2 text-primary"></i>
+                Vendor Profile
+            </div>
+            <div class="card-body">
+
+                <!-- Vendor Avatar -->
+                <div class="text-center mb-4">
+                    <div style="width:80px; height:80px;
+                                background: linear-gradient(135deg,#0d6efd,#0f3460);
+                                border-radius:20px;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                margin: 0 auto 15px;">
+                        <i class="fas fa-building fa-2x text-white"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ vendor.vendor_name }}</h5>
+                    <span class="badge bg-secondary">
+                        {{ vendor.vendor_code }}
+                    </span>
+                    &nbsp;
+                    {% if vendor.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <!-- Vendor Details List -->
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-envelope me-2"></i>Email
+                        </small>
+                        <strong>{{ vendor.email or '—' }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-phone me-2"></i>Phone
+                        </small>
+                        <strong>{{ vendor.phone or '—' }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-globe me-2"></i>Country
+                        </small>
+                        <strong>{{ vendor.country or '—' }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-calendar me-2"></i>
+                            Payment Terms
+                        </small>
+                        <strong>
+                            <span class="badge bg-info text-dark">
+                                Net {{ vendor.payment_terms }} days
+                            </span>
+                        </strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-clock me-2"></i>
+                            Registered On
+                        </small>
+                        <strong>
+                            {{ vendor.created_at.strftime('%d %b %Y') }}
+                        </strong>
+                    </li>
+                </ul>
+
+                <hr>
+
+                <!-- Quick Stats -->
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="fw-bold text-primary fs-4">
+                            {{ invoices|length }}
+                        </div>
+                        <small class="text-muted">Total Invoices</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-success fs-4">
+                            {{ invoices|selectattr('status','equalto','Paid')|list|length }}
+                        </div>
+                        <small class="text-muted">Paid Invoices</small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RIGHT — Invoices Table ───────────── -->
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header py-3 d-flex justify-content-between">
+                <span>
+                    <i class="fas fa-file-invoice me-2 text-primary"></i>
+                    Invoices for {{ vendor.vendor_name }}
+                </span>
+                <a href="/invoices/add" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add Invoice
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">Invoice No</th>
+                            <th>Amount</th>
+                            <th>Invoice Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Match</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td class="ps-3">
+                                <strong>
+                                    {{ invoice.invoice_number }}
+                                </strong>
+                            </td>
+                            <td>
+                                ${{ "%.2f"|format(invoice.amount) }}
+                            </td>
+                            <td>{{ invoice.invoice_date }}</td>
+                            <td>{{ invoice.due_date }}</td>
+                            <td>
+                                {% if invoice.status == 'Approved' %}
+                                    <span class="badge bg-success">
+                                        Approved
+                                    </span>
+                                {% elif invoice.status == 'Rejected' %}
+                                    <span class="badge bg-danger">
+                                        Rejected
+                                    </span>
+                                {% elif invoice.status == 'Paid' %}
+                                    <span class="badge bg-primary">
+                                        Paid
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if invoice.match_status == '3-Way Match Passed ✅' %}
+                                    <span class="badge bg-success">
+                                        3-Way ✅
+                                    </span>
+                                {% elif invoice.match_status == 'Pending' %}
+                                    <span class="badge bg-secondary">
+                                        Pending
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        {{ invoice.match_status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6"
+                                class="text-center py-5 text-muted">
+                                <i class="fas fa-file-invoice
+                                          fa-3x mb-3 d-block"></i>
+                                No invoices for this vendor yet!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total Amount Footer -->
+            {% if invoices %}
+            <div class="card-footer text-end">
+                <strong>Total Invoice Value: </strong>
+                <span class="text-primary fw-bold fs-5">
+                    ${{ "%.2f"|format(
+                        invoices|sum(attribute='amount')) }}
+                </span>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

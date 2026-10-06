@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block page_title %}PO Detail{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Purchase Order Detail</h5>
+        <small class="text-muted">{{ po.po_number }} — {{ po.vendor.vendor_name }}</small>
+    </div>
+    <div>
+        {% if po.status == 'Open' %}
+        <a href="/po/{{ po.id }}/close"
+           class="btn btn-secondary me-2"
+           onclick="return confirm('Close this PO?')">
+            <i class="fas fa-lock me-1"></i> Close PO
+        </a>
+        {% endif %}
+        <a href="/po" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to POs
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- ── LEFT — PO Info ──────────────────── -->
+    <div class="col-xl-4">
+
+        <!-- PO Summary Card -->
+        <div class="card mb-3">
+            <div class="card-header py-3">
+                <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                PO Summary
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <small class="text-muted d-block">PO Number</small>
+                        <strong class="fs-5">{{ po.po_number }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">Vendor</small>
+                        <strong>{{ po.vendor.vendor_name }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">PO Date</small>
+                        <strong>{{ po.po_date }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">Total Amount</small>
+                        <strong class="text-primary fs-5">
+                            ${{ "%.2f"|format(po.total_amount) }}
+                        </strong>
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        {% if po.status == 'Open' %}
+                            <span class="badge bg-success fs-6">Open</span>
+                        {% elif po.status == 'Closed' %}
+                            <span class="badge bg-secondary fs-6">Closed</span>
+                        {% else %}
+                            <span class="badge bg-danger fs-6">Cancelled</span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-3">
+                        <small class="text-muted d-block">Created On</small>
+                        <strong>
+                            {{ po.created_at.strftime('%d %b %Y') }}
+                        </strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Invoice Match Card -->
+        <div class="card mb-3">
+            <div class="card-header py-3">
+                <i class="fas fa-file-invoice me-2 text-warning"></i>
+                Linked Invoice
+            </div>
+            <div class="card-body">
+                {% if invoice %}
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Invoice No</small>
+                        <strong>{{ invoice.invoice_number }}</strong>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Amount</small>
+                        <strong class="text-primary">
+                            ${{ "%.2f"|format(invoice.amount) }}
+                        </strong>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Status</small>
+                        {% if invoice.status == 'Approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% elif invoice.status == 'Rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% elif invoice.status == 'Paid' %}
+                            <span class="badge bg-primary">Paid</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">
+                            Amount Match
+                        </small>
+                        {% if abs(po.total_amount - invoice.amount) <= 10 %}
+                            <span class="badge bg-success">
+                                ✅ Amounts Match
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                ❌ Amount Mismatch
+                            </span>
+                        {% endif %}
+                    </li>
+                </ul>
+                {% else %}
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-file-invoice fa-2x mb-2 d-block"></i>
+                    No invoice linked yet
+                    <br>
+                    <a href="/invoices/add"
+                       class="btn btn-sm btn-primary mt-2">
+                        Add Invoice
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- GRN Card -->
+        <div class="card">
+            <div class="card-header py-3">
+                <i class="fas fa-truck me-2 text-success"></i>
+                Goods Receipt (GRN)
+            </div>
+            <div class="card-body">
+                {% if grn %}
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <small class="text-muted d-block">
+                            Received Date
+                        </small>
+                        <strong>{{ grn.received_date }}</strong>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">
+                            Received Qty
+                        </small>
+                        <strong class="text-success">
+                            {{ grn.received_qty }}
+                        </strong>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">
+                            Received By
+                        </small>
+                        <strong>{{ grn.received_by }}</strong>
+                    </li>
+                </ul>
+                {% else %}
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-truck fa-2x mb-2 d-block"></i>
+                    No GRN recorded yet
+                    <br>
+                    <a href="/grn/add"
+                       class="btn btn-sm btn-success mt-2">
+                        Add GRN
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── RIGHT — Line Items ──────────────── -->
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header py-3">
+                <i class="fas fa-list me-2 text-primary"></i>
+                Line Items
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">#</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in po.line_items %}
+                        <tr>
+                            <td class="ps-3">{{ loop.index }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>
+                                ${{ "%.2f"|format(item.unit_price) }}
+                            </td>
+                            <td>
+                                <strong class="text-primary">
+                                    ${{ "%.2f"|format(item.total_price) }}
+                                </strong>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5"
+                                class="text-center py-4 text-muted">
+                                No line items found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if po.line_items %}
+                    <tfoot>
+                        <tr class="table-light">
+                            <td colspan="4"
+                                class="ps-3 fw-bold text-end">
+                                PO Total:
+                            </td>
+                            <td class="fw-bold text-primary fs-5">
+                                ${{ "%.2f"|format(po.total_amount) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- 3-Way Match Status Card -->
+        <div class="card mt-3">
+            <div class="card-header py-3">
+                <i class="fas fa-check-double me-2 text-success"></i>
+                3-Way Match Status
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+
+                    <!-- PO Check -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded"
+                             style="background:#f8f9fa">
+                            <i class="fas fa-shopping-cart fa-2x
+                                      text-primary mb-2 d-block"></i>
+                            <strong>Purchase Order</strong>
+                            <br>
+                            <span class="badge bg-success mt-1">
+                                ✅ Exists
+                            </span>
+                            <br>
+                            <small class="text-muted">
+                                ${{ "%.2f"|format(po.total_amount) }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Check -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded"
+                             style="background:#f8f9fa">
+                            <i class="fas fa-file-invoice fa-2x
+                                      text-warning mb-2 d-block"></i>
+                            <strong>Invoice</strong>
+                            <br>
+                            {% if invoice %}
+                                <span class="badge bg-success mt-1">
+                                    ✅ Linked
+                                </span>
+                                <br>
+                                <small class="text-muted">
+                                    ${{ "%.2f"|format(invoice.amount) }}
+                                </small>
+                            {% else %}
+                                <span class="badge bg-danger mt-1">
+                                    ❌ Missing
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- GRN Check -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded"
+                             style="background:#f8f9fa">
+                            <i class="fas fa-truck fa-2x
+                                      text-success mb-2 d-block"></i>
+                            <strong>Goods Receipt</strong>
+                            <br>
+                            {% if grn %}
+                                <span class="badge bg-success mt-1">
+                                    ✅ Received
+                                </span>
+                                <br>
+                                <small class="text-muted">
+                                    Qty: {{ grn.received_qty }}
+                                </small>
+                            {% else %}
+                                <span class="badge bg-danger mt-1">
+                                    ❌ Missing
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Overall Result -->
+                <div class="text-center mt-3">
+                    {% if invoice and grn and
+                          abs(po.total_amount - invoice.amount) <= 10 %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>3-Way Match PASSED!</strong>
+                            — Invoice is approved for payment!
+                        </div>
+                    {% elif not invoice %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Waiting for Invoice</strong>
+                            — Link an invoice to proceed
+                        </div>
+                    {% elif not grn %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>2-Way Match Only</strong>
+                            — Add GRN to complete 3-way match
+                        </div>
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <strong>Match FAILED!</strong>
+                            — Amount or quantity mismatch detected
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

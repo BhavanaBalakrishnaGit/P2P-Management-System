@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Edit Vendor{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Edit Vendor</h5>
+        <small class="text-muted">Update vendor details — {{ vendor.vendor_name }}</small>
+    </div>
+    <a href="/vendors" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Vendors
+    </a>
+</div>
+
+<!-- Form Card -->
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header py-3">
+                <i class="fas fa-edit me-2 text-warning"></i>
+                Editing — <strong>{{ vendor.vendor_code }}</strong>
+                — {{ vendor.vendor_name }}
+            </div>
+            <div class="card-body p-4">
+                <form method="POST"
+                      action="/vendors/{{ vendor.id }}/edit">
+
+                    <!-- Row 1 — Vendor Code (readonly) & Name -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                Vendor Code
+                            </label>
+                            <input type="text"
+                                   class="form-control bg-light"
+                                   value="{{ vendor.vendor_code }}"
+                                   readonly>
+                            <small class="text-muted">
+                                Cannot be changed
+                            </small>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">
+                                Vendor Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="vendor_name"
+                                   class="form-control"
+                                   value="{{ vendor.vendor_name }}"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 — Email & Phone -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       value="{{ vendor.email or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Phone Number
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <input type="text"
+                                       name="phone"
+                                       class="form-control"
+                                       value="{{ vendor.phone or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 — Country & Payment Terms -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Country
+                            </label>
+                            <select name="country" class="form-select">
+                                <option value="">-- Select Country --</option>
+                                {% for c in ['India','USA','UK','Germany',
+                                             'Australia','Canada','Singapore',
+                                             'UAE','Japan','France'] %}
+                                <option value="{{ c }}"
+                                    {% if vendor.country == c %}
+                                        selected
+                                    {% endif %}>
+                                    {{ c }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Payment Terms (Days)
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select name="payment_terms"
+                                    class="form-select"
+                                    required>
+                                {% for days in [15, 30, 45, 60, 90] %}
+                                <option value="{{ days }}"
+                                    {% if vendor.payment_terms == days %}
+                                        selected
+                                    {% endif %}>
+                                    Net {{ days }} days
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Current Status Info -->
+                    <div class="alert alert-info mt-2">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Current Status:</strong>
+                        {% if vendor.is_active %}
+                            <span class="badge bg-success ms-1">Active</span>
+                            — To deactivate, use the button on vendor list.
+                        {% else %}
+                            <span class="badge bg-secondary ms-1">Inactive</span>
+                            — To activate, use the button on vendor list.
+                        {% endif %}
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit"
+                                class="btn btn-warning px-4">
+                            <i class="fas fa-save me-1"></i>
+                            Update Vendor
+                        </button>
+                        <a href="/vendors"
+                           class="btn btn-outline-secondary px-4">
+                            <i class="fas fa-times me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Add Invoice{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Add New Invoice</h5>
+        <small class="text-muted">Submit a new invoice for processing</small>
+    </div>
+    <a href="/invoices" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Invoices
+    </a>
+</div>
+
+<!-- Form Card -->
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header py-3">
+                <i class="fas fa-file-invoice me-2 text-primary"></i>
+                Invoice Details
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/invoices/add">
+
+                    <!-- Row 1 — Invoice Number & Vendor -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Invoice Number <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="invoice_number"
+                                   class="form-control"
+                                   placeholder="e.g. INV-2024-001"
+                                   required>
+                            <small class="text-muted">Must be unique</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Vendor <span class="text-danger">*</span>
+                            </label>
+                            <select name="vendor_id"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Select Vendor --</option>
+                                {% for vendor in vendors %}
+                                <option value="{{ vendor.id }}">
+                                    {{ vendor.vendor_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 — PO Number & Amount -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                PO Number
+                            </label>
+                            <input type="text"
+                                   name="po_number"
+                                   class="form-control"
+                                   placeholder="e.g. PO-2024-001">
+                            <small class="text-muted">
+                                Optional — needed for PO matching
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Invoice Amount <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number"
+                                       name="amount"
+                                       class="form-control"
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       min="0"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 — Invoice Date & Due Date -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Invoice Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date"
+                                   name="invoice_date"
+                                   class="form-control"
+                                   required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Due Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date"
+                                   name="due_date"
+                                   class="form-control"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Invoice will be submitted
+                        with status <strong>Pending</strong> and will
+                        require approval before payment.
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i>
+                            Submit Invoice
+                        </button>
+                        <a href="/invoices"
+                           class="btn btn-outline-secondary px-4">
+                            <i class="fas fa-times me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

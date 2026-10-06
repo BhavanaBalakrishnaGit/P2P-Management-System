@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Invoices{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">All Invoices</h5>
+        <small class="text-muted">Manage and track all invoices</small>
+    </div>
+    <div>
+        <a href="/invoices/export" class="btn btn-success me-2">
+            <i class="fas fa-file-excel me-1"></i> Export Excel
+        </a>
+        <a href="/invoices/add" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add Invoice
+        </a>
+    </div>
+</div>
+
+<!-- Invoices Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Invoice No</th>
+                    <th>Vendor</th>
+                    <th>PO Number</th>
+                    <th>Amount</th>
+                    <th>Invoice Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Match Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                    <td class="ps-3">
+                        <strong>{{ invoice.invoice_number }}</strong>
+                    </td>
+                    <td>{{ invoice.vendor.vendor_name }}</td>
+                    <td>{{ invoice.po_number or '—' }}</td>
+                    <td>${{ "%.2f"|format(invoice.amount) }}</td>
+                    <td>{{ invoice.invoice_date }}</td>
+                    <td>
+                        {{ invoice.due_date }}
+                    </td>
+                    <td>
+                        {% if invoice.status == 'Approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% elif invoice.status == 'Rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% elif invoice.status == 'Paid' %}
+                            <span class="badge bg-primary">Paid</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if invoice.match_status == '3-Way Match Passed ✅' %}
+                            <span class="badge bg-success">3-Way ✅</span>
+                        {% elif invoice.match_status == 'Pending' %}
+                            <span class="badge bg-secondary">Pending</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                {{ invoice.match_status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- Approve -->
+                        {% if invoice.status == 'Submitted' %}
+                        <a href="/invoices/{{ invoice.id }}/approve"
+                           class="btn btn-sm btn-success me-1"
+                           title="Approve">
+                            <i class="fas fa-check"></i>
+                        </a>
+                        <!-- Reject -->
+                        <a href="/invoices/{{ invoice.id }}/reject"
+                           class="btn btn-sm btn-danger me-1"
+                           title="Reject">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Mark Paid -->
+                        {% if invoice.status == 'Approved' %}
+                        <a href="/invoices/{{ invoice.id }}/paid"
+                           class="btn btn-sm btn-primary me-1"
+                           title="Mark as Paid">
+                            <i class="fas fa-dollar-sign"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Delete -->
+                        <a href="/invoices/{{ invoice.id }}/delete"
+                           class="btn btn-sm btn-outline-danger"
+                           title="Delete"
+                           onclick="return confirm('Are you sure you want to delete this invoice?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="fas fa-file-invoice fa-3x mb-3 d-block"></i>
+                        No invoices found!
+                        <br>
+                        <a href="/invoices/add" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-1"></i> Add First Invoice
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

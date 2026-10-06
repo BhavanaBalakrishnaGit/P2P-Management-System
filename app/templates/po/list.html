@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Purchase Orders{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Purchase Orders</h5>
+        <small class="text-muted">Manage all purchase orders</small>
+    </div>
+    <div>
+        <a href="/po/matching" class="btn btn-warning me-2">
+            <i class="fas fa-check-double me-1"></i> Run PO Matching
+        </a>
+        <a href="/po/add" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add PO
+        </a>
+    </div>
+</div>
+
+<!-- PO Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">PO Number</th>
+                    <th>Vendor</th>
+                    <th>PO Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Line Items</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for po in pos %}
+                <tr>
+                    <td class="ps-3">
+                        <strong>{{ po.po_number }}</strong>
+                    </td>
+                    <td>{{ po.vendor.vendor_name }}</td>
+                    <td>{{ po.po_date }}</td>
+                    <td>
+                        <strong class="text-primary">
+                            ${{ "%.2f"|format(po.total_amount) }}
+                        </strong>
+                    </td>
+                    <td>
+                        {% if po.status == 'Open' %}
+                            <span class="badge bg-success">Open</span>
+                        {% elif po.status == 'Closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% else %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark">
+                            {{ po.line_items|length }} items
+                        </span>
+                    </td>
+                    <td>
+                        <!-- View Detail -->
+                        <a href="/po/{{ po.id }}/detail"
+                           class="btn btn-sm btn-info text-white me-1"
+                           title="View Detail">
+                            <i class="fas fa-eye"></i>
+                        </a>
+
+                        <!-- Close PO -->
+                        {% if po.status == 'Open' %}
+                        <a href="/po/{{ po.id }}/close"
+                           class="btn btn-sm btn-secondary"
+                           title="Close PO"
+                           onclick="return confirm(
+                               'Close PO {{ po.po_number }}?')">
+                            <i class="fas fa-lock"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fas fa-shopping-cart fa-3x mb-3 d-block"></i>
+                        No purchase orders found!
+                        <br>
+                        <a href="/po/add" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-1"></i>
+                            Create First PO
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+            <!-- Summary Footer -->
+            {% if pos %}
+            <tfoot>
+                <tr class="table-light">
+                    <td colspan="3" class="ps-3 fw-bold">
+                        Total ({{ pos|length }} POs)
+                    </td>
+                    <td class="fw-bold text-primary">
+                        ${{ "%.2f"|format(pos|sum(attribute='total_amount')) }}
+                    </td>
+                    <td colspan="3"></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+
+        </table>
+    </div>
+</div>
+
+{% endblock %}

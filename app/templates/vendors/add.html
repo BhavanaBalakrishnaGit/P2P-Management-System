@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Add Vendor{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0 fw-bold">Add New Vendor</h5>
+        <small class="text-muted">Register a new vendor in the system</small>
+    </div>
+    <a href="/vendors" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Vendors
+    </a>
+</div>
+
+<!-- Form Card -->
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header py-3">
+                <i class="fas fa-building me-2 text-primary"></i>
+                Vendor Details
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/vendors/add">
+
+                    <!-- Row 1 — Vendor Code & Vendor Name -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                Vendor Code
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="vendor_code"
+                                   class="form-control"
+                                   placeholder="e.g. VEN001"
+                                   required>
+                            <small class="text-muted">
+                                Unique code for this vendor
+                            </small>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">
+                                Vendor Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="vendor_name"
+                                   class="form-control"
+                                   placeholder="e.g. Accenture Solutions Pvt Ltd"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 — Email & Phone -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       placeholder="vendor@company.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Phone Number
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <input type="text"
+                                       name="phone"
+                                       class="form-control"
+                                       placeholder="+91 9999999999">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 — Country & Payment Terms -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Country
+                            </label>
+                            <select name="country" class="form-select">
+                                <option value="">-- Select Country --</option>
+                                <option value="India">India</option>
+                                <option value="USA">USA</option>
+                                <option value="UK">UK</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="UAE">UAE</option>
+                                <option value="Japan">Japan</option>
+                                <option value="France">France</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                Payment Terms (Days)
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select name="payment_terms"
+                                    class="form-select"
+                                    required>
+                                <option value="15">Net 15 days</option>
+                                <option value="30" selected>Net 30 days</option>
+                                <option value="45">Net 45 days</option>
+                                <option value="60">Net 60 days</option>
+                                <option value="90">Net 90 days</option>
+                            </select>
+                            <small class="text-muted">
+                                Number of days to pay after invoice date
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="alert alert-success mt-2">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Vendor will be created
+                        as <strong>Active</strong> by default and will
+                        be available for invoice submission immediately.
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i>
+                            Save Vendor
+                        </button>
+                        <a href="/vendors"
+                           class="btn btn-outline-secondary px-4">
+                            <i class="fas fa-times me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
